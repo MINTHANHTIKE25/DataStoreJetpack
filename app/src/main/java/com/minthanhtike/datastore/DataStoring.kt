@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 
@@ -15,6 +16,17 @@ private val Context.dataStore: DataStore<Preferences>
         by preferencesDataStore(name = "Users_Info")
 
 class DataStoring(private val context: Context) {
+    val isAlright=booleanPreferencesKey(DataStoreName.ISRIGHT.name)
+    suspend fun storingBoolean(isRight: Boolean){
+        context.dataStore.edit {
+            preferences ->
+            preferences[isAlright]=isRight
+        }
+    }
+
+    val getIsRightFlow: Flow<Boolean?> = context.dataStore.data.map {
+        preferences-> preferences[isAlright]
+    }
     companion object {
         val EMAIL = stringPreferencesKey("EMAIL")
         val MOBILENUMBER = intPreferencesKey("MOBILENUMBERS")

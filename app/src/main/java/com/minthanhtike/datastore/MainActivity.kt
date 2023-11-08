@@ -2,6 +2,7 @@ package com.minthanhtike.datastore
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -55,9 +56,9 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Greeting(modifier: Modifier = Modifier) {
-    
+
     val dataStoring = DataStoring(context = LocalContext.current)
-    
+
     var email by remember { mutableStateOf("") }
     var phnumber by remember { mutableStateOf(0) }
     var isDark by remember { mutableStateOf(false) }
@@ -69,9 +70,10 @@ fun Greeting(modifier: Modifier = Modifier) {
     var emailDS by remember {
         mutableStateOf("")
     }
-    LaunchedEffect(key1 = Unit){
-        val userData = dataStoring.getFromDataStore().collect{
-            preference-> nameDS = preference.name
+    val booleanDS = dataStoring.getIsRightFlow.collectAsState(initial = false)
+    LaunchedEffect(key1 = Unit) {
+        dataStoring.getFromDataStore().collect { preference ->
+            nameDS = preference.name
             emailDS = preference.emailAddress
         }
     }
@@ -96,6 +98,9 @@ fun Greeting(modifier: Modifier = Modifier) {
                     )
                 )
             }
+            CoroutineScope(Dispatchers.IO).launch {
+                dataStoring.storingBoolean(true)
+            }
         }) {
             Text(text = "Saving")
         }
@@ -103,6 +108,10 @@ fun Greeting(modifier: Modifier = Modifier) {
         Spacer(modifier = modifier.height(40.dp))
         Text(text = emailDS)
         Text(text = nameDS)
+        if (booleanDS.value == true) {
+            Toast.makeText(LocalContext.current, "${booleanDS.value}", Toast.LENGTH_SHORT).show()
+        }
+
 
     }
 }
